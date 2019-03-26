@@ -1,3 +1,4 @@
 # Environment stuff
 .idea
 venv
+__pycache__
