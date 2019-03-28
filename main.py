@@ -1,14 +1,14 @@
-from war.game import Deck
+from war.game import Game
 
 if __name__ == '__main__':
-    d = Deck()
+    g = Game()
 
-    a, b = d.start_game()
+    print(g.player_a.cards)
 
-    print(a.cards)
+    g.run_turn()
+    g.run_turn()
+    g.run_turn()
+    g.run_turn()
 
-    print(a.cards.serve_card())
-    print(a.cards.serve_card())
-    print(a.cards.serve_card())
-
-    print(a.cards)
+    print(g.table.a_cards)
+    print(g.table.b_cards)
