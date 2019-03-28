@@ -5,10 +5,12 @@ if __name__ == '__main__':
 
     print(g.player_a.cards)
 
-    g.run_turn()
-    g.run_turn()
-    g.run_turn()
-    g.run_turn()
+    while not g.table.game_over:
+        for i in range(10):
+            # input()
+            g.run_turn()
 
-    print(g.table.a_cards)
-    print(g.table.b_cards)
+            print(g.player_a.discard)
+            print(g.player_b.discard)
+
+    print(g.player_a.total_card_count, g.player_b.total_card_count)
