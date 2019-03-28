@@ -1,7 +1,8 @@
 import random
 
-from card import Card
-from pile import Pile
+from .card import Card
+from .pile import PlayerPile
+from .player import Player
 
 
 class Deck:
@@ -14,24 +15,12 @@ class Deck:
     def start_game(self) -> tuple:
         random.shuffle(self.all_cards)
 
-        player_a = self.all_cards[:26]
-        player_a = Pile(player_a)
+        player_a_cards = self.all_cards[:26]
+        player_a_pile = PlayerPile(player_a_cards)
+        player_a = Player(player_a_pile)
 
-        player_b = self.all_cards[26:]
-        player_b = Pile(player_b)
+        player_b_cards = self.all_cards[26:]
+        player_b_pile = PlayerPile(player_b_cards)
+        player_b = Player(player_b_pile)
 
         return player_a, player_b
-
-
-if __name__ == '__main__':
-    d = Deck()
-
-    a, b = d.start_game()
-
-    print(a)
-
-    print(a.serve_card())
-    print(a.serve_card())
-    print(a.serve_card())
-
-    print(a)
