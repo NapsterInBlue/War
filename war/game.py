@@ -11,7 +11,7 @@ class Deck:
             for _ in range(4):
                 self.all_cards.append(Card(i))
 
-    def start_game(self) -> tuple[Pile]:
+    def start_game(self) -> tuple:
         random.shuffle(self.all_cards)
 
         player_a = self.all_cards[:26]
@@ -21,8 +21,6 @@ class Deck:
         player_b = Pile(player_b)
 
         return player_a, player_b
-
-
 
 
 if __name__ == '__main__':
