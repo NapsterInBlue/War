@@ -19,6 +19,8 @@ class Table:
         self.b_cards = []
         self.game_over = False
 
+        self.first_round = True  # updated on first shuffle in Player
+
     @property
     def a_last_card(self):
         return self.a_cards[-1]
@@ -48,7 +50,13 @@ class Turn:
         self.num_player_b_aces = (game.player_b.cards.count_card(12)
                                   + game.player_b.discard.count_card(12))
 
+        self.num_player_a_kings = (game.player_a.cards.count_card(11)
+                                   + game.player_a.discard.count_card(11))
+        self.num_player_b_kings = (game.player_b.cards.count_card(11)
+                                   + game.player_b.discard.count_card(11))
+
         self.num_wars = 0
+        self.a_won_first_round = game.a_won_first_round
 
     def write_data(self):
         game_num = self.game_num
@@ -57,6 +65,9 @@ class Turn:
                               str(self.num_player_b_cards),
                               str(self.num_player_a_aces),
                               str(self.num_player_b_aces),
+                              str(self.num_player_a_kings),
+                              str(self.num_player_b_kings),
+                              str(self.a_won_first_round),
                               str(self.num_wars)]))
             f.write('\n')
 
@@ -77,7 +88,13 @@ class Game:
         player_b_pile = PlayerPile(player_b_cards)
         self.player_b = Player(player_b_pile, self.table)
 
+        self.a_won_first_round = None
+
     def run_turn(self):
+        if self.a_won_first_round is None and not self.table.first_round:
+            self.a_won_first_round = (self.player_a.total_card_count
+                                      > self.player_b.total_card_count)
+
         turn = Turn(self)
         available_cards = min(self.player_a.total_card_count, self.player_b.total_card_count)
         available_cards = min(available_cards, 3)

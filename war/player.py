@@ -15,6 +15,9 @@ class Player:
         if len(self.cards):
             card = self.cards.serve_card()
         elif len(self.discard):
+            if self.table.first_round:
+                self.table.first_round = False
+
             self.discard.shuffle_reload_deck()
             card = self.cards.serve_card()
 
