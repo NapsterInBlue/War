@@ -36,8 +36,35 @@ class Table:
         self.b_cards = []
 
 
+class Turn:
+    def __init__(self, game):
+        self.game_num = game.game_num
+
+        self.num_player_a_cards = game.player_a.total_card_count
+        self.num_player_b_cards = game.player_b.total_card_count
+
+        self.num_player_a_aces = (game.player_a.cards.count_card(12)
+                                  + game.player_a.discard.count_card(12))
+        self.num_player_b_aces = (game.player_b.cards.count_card(12)
+                                  + game.player_b.discard.count_card(12))
+
+        self.num_wars = 0
+
+    def write_data(self):
+        game_num = self.game_num
+        with open('data/data{}.txt'.format(game_num), 'a') as f:
+            f.write(' '.join([str(self.num_player_a_cards),
+                              str(self.num_player_b_cards),
+                              str(self.num_player_a_aces),
+                              str(self.num_player_b_aces),
+                              str(self.num_wars)]))
+            f.write('\n')
+
+
 class Game:
-    def __init__(self):
+    def __init__(self, game_num):
+        self.game_num = game_num
+
         self.table = Table()
         self.all_cards = Deck().all_cards
         random.shuffle(self.all_cards)
@@ -51,6 +78,7 @@ class Game:
         self.player_b = Player(player_b_pile, self.table)
 
     def run_turn(self):
+        turn = Turn(self)
         available_cards = min(self.player_a.total_card_count, self.player_b.total_card_count)
         available_cards = min(available_cards, 3)
 
@@ -70,6 +98,7 @@ class Game:
         while in_war:
             if self.table.a_last_card == self.table.b_last_card:
                 # print('\nwar happened')
+                turn.num_wars += 1
 
                 available_cards = min(self.player_a.total_card_count, self.player_b.total_card_count)
                 available_cards = min(available_cards, 3)
@@ -96,3 +125,4 @@ class Game:
                 in_war = False
 
         self.table.flush_cards()
+        turn.write_data()

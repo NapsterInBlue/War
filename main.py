@@ -1,13 +1,11 @@
 from war.game import Game
+import time
 
 if __name__ == '__main__':
-    g = Game()
+    t = time.time()
+    for i in range(1000):
+        g = Game(i)
+        while not g.table.game_over:
+            g.run_turn()
 
-    # print(g.player_a.cards)
-
-    while not g.table.game_over:
-        g.run_turn()
-
-    # print(g.player_a.total_card_count, g.player_b.total_card_count)
-    # print(g.player_a.cards, sorted(g.player_a.discard.cards))
-    # print(g.player_b.cards, sorted(g.player_b.discard.cards))
+    print(time.time() - t)
