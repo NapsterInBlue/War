@@ -51,45 +51,48 @@ class Game:
         self.player_b = Player(player_b_pile, self.table)
 
     def run_turn(self):
-        try:
+        available_cards = min(self.player_a.total_card_count, self.player_b.total_card_count)
+        available_cards = min(available_cards, 3)
+
+        if available_cards <= 1:
+            self.table.game_over = True
+            self.table.flush_cards()
+            return None
+        else:
             a_card = self.player_a.play_card()
             b_card = self.player_b.play_card()
-        except UnboundLocalError:
-            self.table.game_over = True
-            return None
 
-        print('a:', a_card)
-        print('b:', b_card)
         self.table.a_cards.append(a_card)
         self.table.b_cards.append(b_card)
 
-        in_war = False
+        in_war = True
 
-        while not in_war:
+        while in_war:
             if self.table.a_last_card == self.table.b_last_card:
-                print('war happened')
-                try:
-                    self.table.a_cards.append(self.player_a.play_card())
-                    self.table.a_cards.append(self.player_a.play_card())
-                except:
-                    continue
-                try:
+                # print('\nwar happened')
+
+                available_cards = min(self.player_a.total_card_count, self.player_b.total_card_count)
+                available_cards = min(available_cards, 3)
+
+                if available_cards == 0:
+                    self.table.game_over = True
+                    if self.player_a.total_card_count > self.player_b.total_card_count:
+                        self.player_a.discard.cards.extend(self.table.all_cards)
+                        in_war = False
+
+                    else:
+                        self.player_b.discard.cards.extend(self.table.all_cards)
+                        in_war = False
+
+                for _ in range(available_cards):
                     self.table.a_cards.append(self.player_a.play_card())
                     self.table.b_cards.append(self.player_b.play_card())
-                except:
-                    continue
-                try:
-                    self.table.b_cards.append(self.player_b.play_card())
-                    self.table.b_cards.append(self.player_b.play_card())
-                except:
-                    continue
-                print('a:', self.table.a_last_card)
-                print('b:', self.table.b_last_card)
-            elif self.table.a_last_card > self.table.b_last_card:
+
+            if self.table.a_last_card > self.table.b_last_card:
                 self.player_a.discard.cards.extend(self.table.all_cards)
-                in_war = True
+                in_war = False
             else:
                 self.player_b.discard.cards.extend(self.table.all_cards)
-                in_war = True
+                in_war = False
 
         self.table.flush_cards()

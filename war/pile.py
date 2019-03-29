@@ -19,13 +19,14 @@ class PlayerPile(Pile):
     def __repr__(self):
         return str(sorted([card for card in self.cards]))
 
+
 class DiscardPile(Pile):
     def __init__(self, player_pile=None):
         self.cards = []
         self.playerPile = player_pile
 
     def shuffle_reload_deck(self):
-        print('shuffling')
+        # print('shuffling')
         random.shuffle(self.cards)
         self.playerPile.cards = self.cards
         self.cards = []
