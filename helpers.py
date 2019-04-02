@@ -29,11 +29,11 @@ def load_whole_games(num_files=None):
 
 def parse_header_footer(header, footer):
     _, _, aces, _, kings, *_ = header.split()
-    num_a, num_b, _, _, _, _, won_first_round, *_ = footer.split()
+    num_a, num_b, *_ = footer.split()
     
     a_won = int(num_a) > int(num_b)
     
-    return (int(aces), int(kings), a_won, bool(won_first_round))
+    return (int(aces), int(kings), a_won)
 
 
 
@@ -44,13 +44,32 @@ def get_game_summaries(num_files=None):
     for i, file in islice(enumerate(files), num_files):
         with open('data/' + file, 'rb') as f:
             first = f.readline()
+            
+            ## pesky bit of code to get a_won_first_round
+            found_val = False
+            while not found_val:
+                line = f.readline()
+                vals = str(line).split(' ')
+                try:
+                    if vals[-2] == 'True':
+                        found_val = True
+                        a_won_first = True
+                    if vals[-2] == 'False':
+                        found_val = True
+                        a_won_first = False
+                    a, b, *_ = vals
+                except IndexError:
+                    a_won_first = a > b
+                    break
+                    
+            
             f.seek(-2, os.SEEK_END)
             while f.read(1) != b"\n":
                 f.seek(-2, os.SEEK_CUR)
             last = f.readline()
             
             result = parse_header_footer(first, last)
-            li.append([i, *result])
+            li.append([i, *result, a_won_first])
             
     df = pd.DataFrame(li, columns=['game', 'a_starting_aces',
                                    'a_starting_kings',
