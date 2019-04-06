@@ -20,5 +20,4 @@ class Player:
 
             self.discard.shuffle_reload_deck()
             card = self.cards.serve_card()
-
         return card

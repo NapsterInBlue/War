@@ -129,17 +129,21 @@ class Game:
                     else:
                         self.player_b.discard.cards.extend(self.table.all_cards)
                         in_war = False
+                    self.table.flush_cards()
+                    break
 
                 for _ in range(available_cards):
-                    self.table.a_cards.append(self.player_a.play_card())
                     self.table.b_cards.append(self.player_b.play_card())
+                    self.table.a_cards.append(self.player_a.play_card())
 
             if self.table.a_last_card > self.table.b_last_card:
                 self.player_a.discard.cards.extend(self.table.all_cards)
                 in_war = False
-            else:
+            elif self.table.a_last_card < self.table.b_last_card:
                 self.player_b.discard.cards.extend(self.table.all_cards)
                 in_war = False
+            else:
+                pass
 
         self.table.flush_cards()
         turn.write_data()

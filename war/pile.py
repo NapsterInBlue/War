@@ -28,6 +28,7 @@ class DiscardPile(Pile):
     def shuffle_reload_deck(self):
         # print('shuffling')
         random.shuffle(self.cards)
+        random.shuffle(self.cards)
         self.playerPile.cards = self.cards
         self.cards = []
 
