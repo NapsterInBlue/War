@@ -1,21 +1,30 @@
 import os
+import re
 from itertools import islice
 
 import matplotlib.pyplot as plt
+import matplotlib
 import pandas as pd
+
+
+def get_game_number(fname):
+    number = int(re.findall('data(\d+)\.txt', fname)[0])
+    return number
 
 
 def load_whole_games(num_files=None):
     files = [x for x in os.listdir('data') if not x.startswith('.git')]
     li = []
 
-    for i, file in islice(enumerate(files), num_files):
+    for file in islice(files, num_files):
         with open('data/' + file, 'r') as f:
+            game_num = get_game_number(file)
+
             df = pd.read_csv(f, delimiter=' ', header=None,
                              names=['num_a', 'num_b', 'num_aces_a', 'num_aces_b',
                                     'num_kings_a', 'num_kings_b', 'win_first_round', 'wars'],
                              na_values='None')
-            df['game'] = i
+            df['game'] = game_num
 
             li.append(df)
 
@@ -42,9 +51,11 @@ def get_game_summaries(num_files=None):
     files = [x for x in os.listdir('data') if not x.startswith('.git')]
     li = []
 
-    for i, file in islice(enumerate(files), num_files):
+    for file in islice(files, num_files):
         with open('data/' + file, 'rb') as f:
             first = f.readline()
+
+            game_num = get_game_number(file)
 
             ## pesky bit of code to get a_won_first_round
             found_val = False
@@ -70,7 +81,7 @@ def get_game_summaries(num_files=None):
             last = f.readline()
 
             result = parse_header_footer(first, last)
-            li.append([i, *result, a_won_first])
+            li.append([game_num, *result, a_won_first])
 
     df = pd.DataFrame(li, columns=['game', 'a_starting_aces',
                                    'a_starting_kings',
@@ -83,12 +94,13 @@ def get_game_lengths(num_files=None):
     files = [x for x in os.listdir('data') if not x.startswith('.git')]
     li = []
 
-    for i, file in islice(enumerate(files), num_files):
+    for file in islice(files, num_files):
         with open('data/' + file, 'rb') as f:
+            game_num = get_game_number(file)
             for j, line in enumerate(f):
                 pass
 
-            li.append((i, j+1))
+            li.append((game_num, j))
 
     df = pd.DataFrame(li, columns=['game', 'turns'])
     return df
