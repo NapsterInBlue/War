@@ -1,5 +1,6 @@
 import os
 import re
+import itertools
 from itertools import islice
 
 import matplotlib.pyplot as plt
@@ -119,29 +120,75 @@ def load_one_game(game_number):
     return df
 
 
-def plot_game_history(game_number):
+def plot_game_history(game_number, aces_and_kings=False):
     game = load_one_game(game_number).reset_index()
-    wars = game[game['wars'] == 1].index
+    wars = game[game['wars'] != 0].index
 
     fig, ax = plt.subplots(figsize=(18, 10))
     ax.plot(game['num_a'])
 
     ax2 = ax.twinx()
-    loc = matplotlib.ticker.MultipleLocator(1)
-    ax2.yaxis.set_major_locator(loc)
+    if aces_and_kings:
+        loc = matplotlib.ticker.MultipleLocator(1)
+        ax2.yaxis.set_major_locator(loc)
 
-    ax2.plot(game['num_aces_a'], linewidth=3, c='g', label='Aces')
-    ax2.plot(game['num_kings_a'], linewidth=1, c='k', label='Kings')
+        ax2.plot(game['num_aces_a'], linewidth=3, c='g', label='Aces')
+        ax2.plot(game['num_kings_a'], linewidth=1, c='k', label='Kings')
+
+
+
+
+        ax.set_ylabel('Card Count', fontsize=12)
+        ax.set_xlabel('Turn Count', fontsize=16)
+        ax2.set_ylabel('King/Ace Count', fontsize=12)
 
     for war in wars:
         ax.axvline(war, color='red', alpha=.5, dashes=(1, 1))
 
     for war in islice(wars, 1):
         ax2.axvline(war, color='red', alpha=.5, dashes=(1, 1), label='WAR!')
-
-    ax.set_ylabel('Card Count', fontsize=12)
-    ax.set_xlabel('Turn Count', fontsize=16)
-    ax2.set_ylabel('King/Ace Count', fontsize=12)
-
     ax2.legend(fontsize=16, loc=3)
+
     return ax2
+
+
+def starting_cards_heatmap(df):
+    fig, ax = plt.subplots(figsize=(10, 10))
+    cax = ax.matshow(df.values)
+    fig.colorbar(cax);
+    ax.set_xlabel('Starting Kings', fontsize=24)
+    ax.set_ylabel('Starting Aces', fontsize=24);
+    plt.tight_layout()
+    return ax
+
+
+def plot_wins_vs_losses(whole_games, num_games, linealpha, markeralpha=1,
+                        xlim=None, additional_title=''):
+    fig, ax = plt.subplots(figsize=(18, 10))
+
+    color_dict = {True: 'g', False: 'r'}
+
+    gb = whole_games.groupby('game')
+    for name, group in itertools.islice(gb, num_games):
+        num_turns = len(group)
+        last_turn = group.tail(1)
+        result = group['a_won'].iloc[0]
+
+        ax.plot(range(num_turns), group['num_a'], color=color_dict[result], alpha=linealpha)
+        ax.plot(num_turns, last_turn['num_a'], color=color_dict[result], marker='o',
+                alpha=markeralpha)
+
+
+    ax.set_ylabel("Cards in Player A's hand", fontsize=16)
+    ax.set_xlabel("Number of Turns", fontsize=16)
+
+    title = f"{num_games} Games of War " + str(additional_title)
+    ax.set_title(title, fontsize=24)
+
+    custom_lines = [matplotlib.lines.Line2D([0], [0], color='r', lw=2),
+                    matplotlib.lines.Line2D([0], [0], color='g', lw=2)]
+    ax.legend(custom_lines, ['Loss', 'Win'], fontsize=16, loc='best')
+
+    ax.set_xlim(xlim)
+
+    return ax
